@@ -4,9 +4,28 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { UserContext } from "./context/UserContext";
 
 export default function Home() {
   const navigate = useNavigate();
+
+  const {
+    user,
+    isLoggedIn,
+    isInitializing,
+    logout,
+  } = useContext(UserContext);
+
+  useEffect(() => {
+    if (!isLoggedIn && !isInitializing) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, isInitializing, navigate]);
+
+  if (isInitializing) {
+    return <></>;
+  }
 
   return (
     <div>
@@ -16,6 +35,12 @@ export default function Home() {
             My Frontend 1.0
           </Typography>
 
+          {user && (
+            <Typography sx={{ mr: 2 }}>
+              {user.username || user.email}
+            </Typography>
+          )}
+
           <Button
             color="inherit"
             onClick={() => {
@@ -23,6 +48,16 @@ export default function Home() {
             }}
           >
             Item
+          </Button>
+
+          <Button
+            color="inherit"
+            onClick={async () => {
+              await logout();
+              navigate("/login");
+            }}
+          >
+            Logout
           </Button>
         </Toolbar>
       </AppBar>
